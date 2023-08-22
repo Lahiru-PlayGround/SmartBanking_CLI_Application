@@ -68,6 +68,11 @@ class Assignment6{
                 screen = DASHBOARD;
                 break;
 
+                case DELETE_ACCOUNT:
+                deleteAccount();
+                screen = DASHBOARD;
+                break;
+
                 default: System.exit(0);
 
             }
@@ -285,6 +290,23 @@ class Assignment6{
         
         
     }
+    public static void deleteAccount(){
+        do{
+            String checkId=accountNoValidation("to delete");
+            int checkingAccount=idArray.indexOf(checkId);
+            idArray.remove(checkingAccount);
+            nameArray.remove(checkingAccount);
+            depositArray.remove(checkingAccount);
+
+            System.out.printf(SUCCESS_MSG,"Account Deleted successfully");
+            System.out.print("Do you want to continue Checking (Y/n)? ");
+            if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))continue;
+            break;
+
+
+        }while(true);
+
+    }
 
     public static String accountNoValidation(String l){//Imform about searching account
         String checkId;
@@ -316,6 +338,14 @@ class Assignment6{
                     checkId=null;
                     break;    
                 }
+            }
+            if(!idArray.contains(checkId)){
+                System.out.printf(ERROR_MSG, "Invalid Account Number");
+                System.out.print("Do you want to continue adding (Y/n)? ");
+                if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))continue loop;
+                checkId=null;
+                break; 
+
             }
          
             break;
