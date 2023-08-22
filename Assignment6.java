@@ -59,7 +59,12 @@ class Assignment6{
                 break;
 
                 case TRANSFER:
-                withrowAmmount();
+                transferAmmount();
+                screen = DASHBOARD;
+                break;
+
+                case CHECK_ACCOUNT_BALANCE:
+                checkAccountBalance();
                 screen = DASHBOARD;
                 break;
 
@@ -151,7 +156,7 @@ class Assignment6{
     }
     public static void continueDeposit(){
         do{
-            String checkId =accountNoValidation();
+            String checkId =accountNoValidation("To Deposit");
             if(checkId.length()>0){
                 int checkingIndex=idArray.indexOf(checkId);
                 Double currentBlance =depositArray.get(checkingIndex);
@@ -190,64 +195,102 @@ class Assignment6{
 
     }
     public static void withrowAmmount(){
-        loop1:
         do{
-            String checkId =accountNoValidation();
-            if(checkId.length()>0){
-                int checkingIndex=idArray.indexOf(checkId);
-                Double currentBlance =depositArray.get(checkingIndex);
-                System.out.printf("Your Account current Balance: Rs%.2f\n",currentBlance);
-                if(currentBlance<500){
-                    System.out.printf(ERROR_MSG,"Rs"+currentBlance+" is UnsufficentBalance You cant withdrow\n");
-                    System.out.print("Do You Want to continue (Y/N): ");
-                    if(SCANNER.nextLine().strip().toUpperCase().equals("Y")) continue;
-                    break loop1;
-                }
-                
-                loop:
-                do{
-                    System.out.print("Enter Your Withdrow Ammount : ");
-                    Double newWithdrow =SCANNER.nextDouble();
-                    SCANNER.nextLine();
-                    if(newWithdrow<100){
-                        System.out.printf(ERROR_MSG,"Minumam Withdrow ammount is Rs.500");
-                        System.out.print("Do You Want to continue (Y/N): ");
-                        if(SCANNER.nextLine().strip().toUpperCase().equals("Y")) continue loop;
-                        break loop1;
-                    }
-                    if((currentBlance-newWithdrow)<500){
-                        System.out.printf(ERROR_MSG,"You dont have sufficent balance of Rs500.00 after witdrowing RS"+newWithdrow);
-                        System.out.print("Do You Want to continue (Y/N): ");
-                        if(SCANNER.nextLine().strip().toUpperCase().equals("Y")) continue loop;
-                        break loop1;
-                    }
-                    currentBlance-=newWithdrow;
-                    depositArray.set(checkingIndex,currentBlance);
-                    System.out.printf(SUCCESS_MSG,"Withdrow Successfull new Balance : "+currentBlance);
-                    
-                    
-                    break;
+            int checkingAccount=-1;
+            Double currentBlance=-1.0;
+            double newWithdrow=-1.0;
 
-                }while(true);
-            
-            }else{
-            System.out.printf(ERROR_MSG,"Invalid Account Number");
-            System.out.print("Do you want to continue (Y/n)? ");
-            if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))continue;
+            String checkId =accountNoValidation("to Withdrow");//
+
+            if(checkId.length()>0){
+                checkingAccount=accountChecking(checkId,"Withdrow");//positive if accont can withdrow
             }
+            if(checkingAccount>= 0){
+                currentBlance =depositArray.get(checkingAccount);
+            }
+            
+            if(checkingAccount>=0&&currentBlance>0){
+                newWithdrow=possibilityChecking(currentBlance,"Withdrow");//check About withdrowing ammount
+            }
+            if(newWithdrow>0){
+                currentBlance-=newWithdrow;
+                depositArray.set(checkingAccount,currentBlance);
+                System.out.printf(SUCCESS_MSG,"Withdrow Successfull new Balance : "+currentBlance);
+            }
+
             System.out.print("Do you want to continue Withdrowing (Y/n)? ");
             if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))continue;
             break;
 
         }while(true);
+        
+        
+    }
+    public static void transferAmmount(){
+        do{
+            int checkingAccount1=-1;
+            Double currentBlance1=-1.0;
+            double newWithdrow=-1.0;
+            String checkId1 =accountNoValidation("to Transfer");
+            String checkId2 =accountNoValidation("to Resive");
+            if(checkId1.length()>0){
+                checkingAccount1=accountChecking(checkId1,"Transfer");//positive if accont can withdrow
+            }
+            if(checkingAccount1>= 0){
+                currentBlance1 =depositArray.get(checkingAccount1);
+            }
+            int checkingAccount=idArray.indexOf(checkId2);
+            double currentBalance2=depositArray.get(checkingAccount);
+            System.out.printf("Resiving Account current Balance: Rs%.2f\n",currentBalance2);
+            
+            if(checkingAccount1>=0){
+                newWithdrow=possibilityChecking(currentBlance1,"From RS ");//check About withdrowing ammount
+            } 
+            if(newWithdrow>0&&currentBlance1>=0){
+                System.out.printf(ERROR_MSG,"%2 deduct for transfering");
+                currentBlance1-=(newWithdrow*1.02);
+                currentBalance2+=(newWithdrow*1.02);
+            }
+            System.out.println("From Account Balance: "+currentBlance1);   
+            System.out.println("To Account Balance: "+currentBalance2); 
+
+            System.out.printf(SUCCESS_MSG,"Transfer Successfull");
+            System.out.print("Do you want to continue Tranfering (Y/n)? ");
+            if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))continue;
+            break;
+        }while(true);
+
+ 
+    }
+    public static void checkAccountBalance(){
+        do{
+            String checkId =accountNoValidation("to check Balance");//
+            if(checkId.length()>0){
+                int checkingAccount=idArray.indexOf(checkId);
+                String name =nameArray.get(checkingAccount);
+                double accountBalance =depositArray.get(checkingAccount);
+                System.out.printf(SUCCESS_MSG,"Account Owner Name: "+name);
+                System.out.printf(SUCCESS_MSG,"Current Account Balance: "+accountBalance);
+                double possibleBalanceToWithdrow=accountBalance-500;
+                System.out.printf(SUCCESS_MSG,"Possible Withdrow Ammount: "+possibleBalanceToWithdrow); 
+            }
+
+            System.out.print("Do you want to continue Checking (Y/n)? ");
+            if (SCANNER.nextLine().strip().toUpperCase().equals("Y"))continue;
+            break;
+
+
+        }while(true);
+        
+        
+        
     }
 
-    
-    public static String accountNoValidation(){
+    public static String accountNoValidation(String l){//Imform about searching account
         String checkId;
         loop:
         do{
-            System.out.print("Enter Account Number : ");
+            System.out.print("Enter Account Number "+l+" : ");
             checkId=SCANNER.nextLine().strip();
 
             if(checkId.isBlank()){
@@ -280,7 +323,58 @@ class Assignment6{
         }while(true);
         return checkId;
     }
-                    
-    
+
+    public static int accountChecking(String checkId,String l){//check the accunt is ok to continue and if ok send the account index
+        int checkingAccount=-1;
+        loop1:
+        do{
+            
+            checkingAccount=idArray.indexOf(checkId);
+            double currentBlance =depositArray.get(checkingAccount);
+            System.out.printf("Your Account current Balance: Rs%.2f\n",currentBlance);
+            if(currentBlance<500){
+                System.out.printf(ERROR_MSG,"Rs"+currentBlance+" is UnsufficentBalance You cant "+l+" press N to go to Main Manu\n");
+                SCANNER.nextLine();
+                checkingAccount=-1;
+                break loop1;  
+                
+            }
+            
+            break;
+            
+
+        }while (true); 
+        //System.out.println(checkingAccount);   
+        return checkingAccount;
+                
+    }
+
+    public static double possibilityChecking(double currentBlance,String l){//check about the ammount try to handle and return managing ammount
+        double newManaging =-1;
+        do{
+            System.out.print("Enter Your "+l+" Ammount : ");
+            newManaging =SCANNER.nextDouble();
+            SCANNER.nextLine();
+            if(newManaging<100){
+                System.out.printf(ERROR_MSG,"Minumam"+l+" ammount is Rs.500");
+                System.out.print("Do You Want to continue (Y/N): ");
+                if(SCANNER.nextLine().strip().toUpperCase().equals("Y")) continue;
+                newManaging =-1;
+                break;
+            }
+            if((currentBlance-newManaging)<500){
+                System.out.printf(ERROR_MSG,"You dont have sufficent balance of Rs500.00 after witdrowing RS"+newManaging);
+                System.out.print("Do You Want to continue (Y/N): ");
+                if(SCANNER.nextLine().strip().toUpperCase().equals("Y")) continue;
+                newManaging =-1;
+                break;
+            }
+                  
+            break;
+
+        }while(true);
+        return newManaging;  
+    }
+                       
 }
 
